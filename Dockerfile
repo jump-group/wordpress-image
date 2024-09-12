@@ -69,5 +69,5 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 USER web
 
 # Set working directory and ownership for wp-cli cache
-WORKDIR /var/www
+WORKDIR /var/www/html
 

@@ -29,4 +29,4 @@ This Dockerfile sets up a PHP 8.1-FPM environment with various PHP extensions an
 To build the Docker image, run the following command:
 
 ```bash
-docker build -t my-php-app .
+docker push jumpgroupit/wordpress-image:tagname
