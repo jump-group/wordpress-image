@@ -1,6 +1,6 @@
-# PHP 8.1-FPM Docker Image with Additional Extensions and Tools
+# PHP 8.0-FPM Docker Image with Additional Extensions and Tools
 
-This Dockerfile sets up a PHP 8.1-FPM environment with various PHP extensions and tools, such as Imagick, Memcached, and WP-CLI. It also configures Mailhog for email testing and includes some optimizations for performance and error logging.
+This Dockerfile sets up a PHP 8.0-FPM environment with various PHP extensions and tools, such as Imagick, Memcached, and WP-CLI. It also configures Mailhog for email testing and includes some optimizations for performance and error logging.
 
 ## Features
 
