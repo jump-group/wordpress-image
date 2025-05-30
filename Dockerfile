@@ -1,7 +1,8 @@
 FROM php:8.2-fpm
 
 # Install persistent dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     ghostscript \
     libfreetype6-dev \
     libjpeg-dev \
@@ -14,12 +15,13 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     mariadb-client \
     libxml2-dev \
-    sudo less
+    sudo less && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) \
-    bcmath exif gd mysqli zip soap
+    bcmath exif gd mysqli pdo_mysql soap zip
 
 # Install imagick via PECL
 RUN pecl install imagick && \
@@ -47,7 +49,7 @@ RUN docker-php-ext-enable opcache && \
     echo 'opcache.fast_shutdown=1' >> /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 # Set up error logging
-RUN echo 'error_reporting = E_ERROR | E_WARNING | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_RECOVERABLE_ERROR' > /usr/local/etc/php/conf.d/error-logging.ini && \
+RUN echo 'error_reporting = E_ALL' > /usr/local/etc/php/conf.d/error-logging.ini && \
     echo 'display_errors = Off' >> /usr/local/etc/php/conf.d/error-logging.ini && \
     echo 'log_errors = On' >> /usr/local/etc/php/conf.d/error-logging.ini && \
     echo 'error_log = /dev/stderr' >> /usr/local/etc/php/conf.d/error-logging.ini
@@ -55,19 +57,15 @@ RUN echo 'error_reporting = E_ERROR | E_WARNING | E_PARSE | E_CORE_ERROR | E_COR
 # Install wp-cli (as root)
 RUN curl -o /bin/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x /bin/wp-cli.phar && \
-    mv /bin/wp-cli.phar /bin/wp && \
-    mkdir -p /var/www/.wp-cli/cache
+    mv /bin/wp-cli.phar /usr/local/bin/wp && \
+    mkdir -p /var/www/.wp-cli
 
 # Add user 'web'
 RUN adduser --disabled-password --gecos '' web && \
     chown -R web:web /var/www/.wp-cli
-
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Switch to non-root user
 USER web
 
 # Set working directory and ownership for wp-cli cache
 WORKDIR /var/www/html
-
