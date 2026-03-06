@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # Install persistent dependencies
 RUN apt-get update && \
@@ -7,6 +7,8 @@ RUN apt-get update && \
     libfreetype6-dev \
     libjpeg-dev \
     libpng-dev \
+    libwebp-dev \
+    libavif-dev \
     libzip-dev \
     zlib1g-dev \
     libmagickwand-dev \
@@ -15,13 +17,16 @@ RUN apt-get update && \
     libssl-dev \
     mariadb-client \
     libxml2-dev \
-    sudo less && \
+    sudo \
+    less \
+    unzip \
+    git && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif && \
     docker-php-ext-install -j$(nproc) \
-    bcmath exif gd mysqli pdo_mysql soap zip
+    bcmath exif gd mysqli pdo_mysql soap zip opcache
 
 # Install imagick via PECL
 RUN pecl install imagick && \
@@ -31,28 +36,32 @@ RUN pecl install imagick && \
 RUN pecl install memcached && \
     docker-php-ext-enable memcached
 
-# Configure ZIP extension
-RUN docker-php-ext-configure zip && \
-    docker-php-ext-install zip
-
 # Forward email to Mailhog
 RUN curl -o /usr/local/bin/mhsendmail https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 && \
     chmod +x /usr/local/bin/mhsendmail && \
     echo 'sendmail_path="/usr/local/bin/mhsendmail --smtp-addr=mailhog:1025 --from=no-reply@gbp.lo"' > /usr/local/etc/php/conf.d/mailhog.ini
 
 # Set recommended PHP settings for opcache
-RUN docker-php-ext-enable opcache && \
-    echo 'opcache.memory_consumption=128' > /usr/local/etc/php/conf.d/opcache-recommended.ini && \
-    echo 'opcache.interned_strings_buffer=8' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
-    echo 'opcache.max_accelerated_files=4000' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
+RUN echo 'opcache.enable=1' > /usr/local/etc/php/conf.d/opcache-recommended.ini && \
+    echo 'opcache.memory_consumption=256' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
+    echo 'opcache.interned_strings_buffer=16' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
+    echo 'opcache.max_accelerated_files=10000' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
     echo 'opcache.revalidate_freq=2' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
-    echo 'opcache.fast_shutdown=1' >> /usr/local/etc/php/conf.d/opcache-recommended.ini
+    echo 'opcache.validate_timestamps=1' >> /usr/local/etc/php/conf.d/opcache-recommended.ini && \
+    echo 'opcache.save_comments=1' >> /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 # Set up error logging
 RUN echo 'error_reporting = E_ALL' > /usr/local/etc/php/conf.d/error-logging.ini && \
     echo 'display_errors = Off' >> /usr/local/etc/php/conf.d/error-logging.ini && \
     echo 'log_errors = On' >> /usr/local/etc/php/conf.d/error-logging.ini && \
     echo 'error_log = /dev/stderr' >> /usr/local/etc/php/conf.d/error-logging.ini
+
+# Set PHP settings for WordPress
+RUN echo 'memory_limit = 256M' > /usr/local/etc/php/conf.d/wordpress.ini && \
+    echo 'upload_max_filesize = 64M' >> /usr/local/etc/php/conf.d/wordpress.ini && \
+    echo 'post_max_size = 64M' >> /usr/local/etc/php/conf.d/wordpress.ini && \
+    echo 'max_execution_time = 300' >> /usr/local/etc/php/conf.d/wordpress.ini && \
+    echo 'max_input_time = 300' >> /usr/local/etc/php/conf.d/wordpress.ini
 
 # Install wp-cli (as root)
 RUN curl -o /bin/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
