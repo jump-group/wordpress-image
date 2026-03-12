@@ -1,10 +1,10 @@
-# PHP 8.3-FPM Docker Image for WordPress
+# PHP 8.4-FPM Docker Image for WordPress
 
-This Dockerfile sets up a production-ready PHP 8.3-FPM environment optimized for WordPress, with various PHP extensions and tools including Imagick, Memcached, and WP-CLI. It also configures Mailhog for email testing and includes performance optimizations and security best practices.
+This Dockerfile sets up a production-ready PHP 8.4-FPM environment optimized for WordPress, with various PHP extensions and tools including Imagick, Memcached, and WP-CLI. It also configures Mailhog for email testing and includes performance optimizations and security best practices.
 
 ## Features
 
-- **PHP 8.3-FPM**: Latest stable PHP version with FPM (FastCGI Process Manager)
+- **PHP 8.4-FPM**: Latest stable PHP version with FPM (FastCGI Process Manager)
 
 - **PHP Extensions**:
   - `bcmath` - Arbitrary precision mathematics
@@ -57,7 +57,7 @@ docker push jumpgroupit/wordpress-image:tagname
 To build the Docker image locally:
 
 ```bash
-docker build -t jumpgroupit/wordpress-image:8.3-fpm .
+docker build -t jumpgroupit/wordpress-image:8.4-fpm .
 ```
 
 ### Pushing to Registry
@@ -65,7 +65,7 @@ docker build -t jumpgroupit/wordpress-image:8.3-fpm .
 To push the image to Docker Hub:
 
 ```bash
-docker push jumpgroupit/wordpress-image:8.3-fpm
+docker push jumpgroupit/wordpress-image:8.4-fpm
 ```
 
 ### Using in docker-compose.yml
@@ -73,7 +73,7 @@ docker push jumpgroupit/wordpress-image:8.3-fpm
 ```yaml
 services:
   php:
-    image: jumpgroupit/wordpress-image:8.3-fpm
+    image: jumpgroupit/wordpress-image:8.4-fpm
     volumes:
       - ./wordpress:/var/www/html
     networks:
@@ -101,8 +101,9 @@ docker exec -it <container_name> wp --info
 
 ## Version History
 
-- **8.3-fpm**: PHP 8.3 with WebP/AVIF support, optimized opcache, and enhanced WordPress configuration
-- **8.2-fpm**: Previous version with PHP 8.2
+- **8.4-fpm**: PHP 8.4 with WebP/AVIF support, optimized opcache, and enhanced WordPress configuration
+- **8.3-fpm**: Previous version with PHP 8.3
+- **8.2-fpm**: PHP 8.2
 
 ## Requirements
 

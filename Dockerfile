@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm
 
 # Install persistent dependencies
 RUN apt-get update && \
